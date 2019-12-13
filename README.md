@@ -4,21 +4,16 @@
 [![Maven Central](https://img.shields.io/maven-central/v/com.spotify/dockerfile-maven.svg)](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.spotify%22%20dockerfile-maven)
 [![License](https://img.shields.io/github/license/spotify/dockerfile-maven.svg)](LICENSE)
 
-## Status: mature
+## 状态: 成熟
+**目前插件比较成熟，基于这一点，我们不再开发，添加新功能，修复非关键性错误。**
 
-**At this point, we're not developing or accepting new features or even fixing non-critical bugs.**
+这个Maven插件将Maven与Docker集成在一起。
 
-This Maven plugin integrates Maven with Docker.
+插件设计目标是：
 
-The design goals are:
-
-  - Don't do anything fancy.  `Dockerfile`s are how you build
-    Docker projects; that's what this plugin uses.  They are
-    mandatory.
-  - Make the Docker build process integrate with the Maven build
-    process.  If you bind the default phases, when you type `mvn
-    package`, you get a Docker image.  When you type `mvn deploy`,
-    your image gets pushed.
+  - 本插件需通过 `Dockerfile` 构建 docker 项目。
+  - 使 Docker 构建过程 集成在 Maven 构建过程集成。默认当输入 `mvn
+    package` 你就会得到 docker 镜像。 当输入 `mvn deploy`，发布 docker 镜像。
   - Make the goals remember what you are doing.  You can type `mvn
     dockerfile:build` and later `mvn dockerfile:tag` and later `mvn
     dockerfile:push` without problems.  This also eliminates the need
