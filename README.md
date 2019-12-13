@@ -12,9 +12,9 @@
 插件设计目标是：
 
   - 本插件需通过 `Dockerfile` 构建 docker 项目。
-  - 使 Docker 构建过程 集成在 Maven 构建过程集成。默认当输入 `mvn
+  - 使 Docker 构建过程 集成在 Maven 构建过程。默认当输入 `mvn
     package` 你就会得到 docker 镜像。 当输入 `mvn deploy`，发布 docker 镜像。
-  - 清晰的构建目标，你可以输入 `mvn dockerfile:build` 然后 `mvn dockerfile:tag` 然后 `mvn dockerfile:push` 。这样消除了一些不明确对类似 `mvn dockerfile:build -DalsoPush` 命令; 作为替换可以用 `mvn dockerfile:build dockerfile:push`。
+  - 清晰的构建目标，你可以输入 `mvn dockerfile:build` 然后 `mvn dockerfile:tag` 然后 `mvn dockerfile:push` 。这样消除了一些不明确类似 `mvn dockerfile:build -DalsoPush` 命令; 可以用 `mvn dockerfile:build dockerfile:push` 作为替换。
   - 集成 Maven build reactor（Maven 多模块构建）。你可以在另一个项目中依赖一个项目的 Docker 映像，Maven 将以正确的顺序构建项目。这对于多服务测试相当有用。
 
 参与项目的维护，希望可以遵守以下协议 [Open Code of Conduct][code-of-conduct]
@@ -24,23 +24,18 @@
 [code-of-conduct]: https://github.com/spotify/code-of-conduct/blob/master/code-of-conduct.md
 [changelog]: CHANGELOG.md
 
-## Set-up
+## 要求
 
-This plugin requires Java 7 or later and Apache Maven 3 or later (dockerfile-maven-plugin <=1.4.6 needs
-Maven >= 3, and for other cases, Maven >= 3.5.2). To run the integration tests or to use the plugin in practice, a working
-Docker set-up is needed.
+本插件需要 Java 7 或者更高版本， 和 Apache Maven 3 活更高 (dockerfile-maven-plugin <=1.4.6 需要
+Maven >= 3, 其他实例需要， Maven >= 3.5.2). 还有 在集成测试或在实践中使用插件，docker 也是必须的。
 
-## Example
+## 示例
 
-For more examples, see the [integration test](./plugin/src/it) directory.
+更多例子，请看 [integration test](./plugin/src/it) 目录。
 
-In particular, the [advanced](./plugin/src/it/advanced) test showcases a
-full service consisting of two micro-services that are integration
-tested using `helios-testing`.
+尤其 [advanced](./plugin/src/it/advanced) 测试展示了一项完整的服务，该服务包含两个使用 `helios-testing` 测试进行了集成测试的微服务 .
 
-This configures the actual plugin to build your image with `mvn
-package` and push it with `mvn deploy`.  Of course you can also say
-`mvn dockerfile:build` explicitly.
+打包使用 `mvn package` 发布用 `mvn deploy`.  当然也可以简单点用 `mvn dockerfile:build` 。
 
 ```xml
 <plugin>
@@ -66,7 +61,7 @@ package` and push it with `mvn deploy`.  Of course you can also say
 </plugin>
 ```
 
-A corresponding `Dockerfile` could look like:
+相对应的 `Dockerfile` :
 
 ```
 FROM openjdk:8-jre
@@ -81,32 +76,25 @@ ARG JAR_FILE
 ADD target/${JAR_FILE} /usr/share/myservice/myservice.jar
 ```
 
-**Important note**
+**重要提示**
 
-The most Maven-ish way to reference the build artifact would probably
-be to use the `project.build.directory` variable for referencing the
-'target'-directory. However, this results in an absolute path, which
-is not supported by the ADD command in the Dockerfile. Any such source
-must be inside the *context* of the Docker build and therefor must be
-referenced by a *relative path*. See https://github.com/spotify/dockerfile-maven/issues/101
+ 通常 在 Maven artifact 里 我们引用 `project.build.directory` 变量说明
+'target'-目录. 然后，这是绝对路径, 不支持 Dockerfile 的 ADD 命令. 因为任何此类源都必须在 Docker 构建的 *上下文* 中，因此必须由 *相对路径* 引用。（这句话意思是 你电脑里的路径 在 docker 里是没有的，所以要用相对路径）
+查看 https://github.com/spotify/dockerfile-maven/issues/101
 
-*Do **not** use `${project.build.directory}` as a way to reference your
-build directory.*
+*不要使用 `${project.build.directory}` 作为引用构建目录*
 
-## What does it give me?
+## 它给我什么？
 
-There are many advantages to using this plugin for your builds.
+使用此插件进行构建有很多优点。
 
-### Faster build times
+### 更快的构建时间
 
-This plugin lets you leverage Docker cache more consistently, vastly
-speeding up your builds by letting you cache Maven dependencies in
-your image.  It also encourages avoiding the `maven-shade-plugin`,
-which also greatly speeds up builds.
+该插件可让您更一致地利用 Docker 缓存，通过在镜像中缓存 Maven 依赖项来极大地加快构建速度。 建议为了加快速度，不再使用 `maven-shade-plugin`。
 
-### Consistent build lifecycle
+### 一致的构建生命周期
 
-You no longer have to say something like:
+你无需再使用:
 
     mvn package
     mvn dockerfile:build
@@ -114,18 +102,15 @@ You no longer have to say something like:
     mvn dockerfile:push
     mvn deploy
 
-Instead, it is simply enough to say:
+仅需要:
 
     mvn deploy
 
-With the basic configuration, this will make sure that the image is
-built and pushed at the correct times.
+这将确保使用基本配置在正确的时间构建并推送镜像。
 
-### Depend on Docker images of other services
+### 依赖于其他服务的 Docker 镜像
 
-You can depend on the Docker information of another project, because
-this plugin attaches project metadata when it builds Docker images.
-Simply add this information to any project:
+您可以依赖另一个项目的 Docker 信息，因为此插件在构建 Docker 镜像时会附加项目元数据。只需将此信息添加到任何项目中：
 
 ```xml
 <dependency>
@@ -136,18 +121,15 @@ Simply add this information to any project:
 </dependency>
 ```
 
-Now, you can read information about the Docker image of the project
-that you depended on:
+现在，您可以阅读有关您所依赖的项目的 Docker 镜像的信息：
 
 ```java
 String imageName = getResource("META-INF/docker/com.spotify/foobar/image-name");
 ```
 
-This is great for an integration test where you want the latest
-version of another project's Docker image.
+这对于集成测试非常有用，在集成测试中，您需要另一个项目的 Docker 镜像的最新版本。
 
-Note that you have to register a Maven extension in your POM (or a
-parent POM) in order for the `docker-info` type to be supported:
+请注意，您必须在POM（或父POM）中注册Maven扩展，以支持docker-info类型：
 
 ```xml
 <build>
@@ -161,10 +143,9 @@ parent POM) in order for the `docker-info` type to be supported:
 </build>
 ```
 
-## Use other Docker tools that rely on Dockerfiles
+## 使用其他依赖 Dockerfile 的 Docker 工具
 
-Your project(s) look like so:
-
+你的项目看起来像这样：
 ```
 a/
   Dockerfile
@@ -174,9 +155,7 @@ b/
   pom.xml
 ```
 
-You can now use these projects with Fig or docker-compose or some
-other system that works with Dockerfiles.  For example, a
-`docker-compose.yml` might look like:
+现在，您可以将这些项目与 Fig 或 docker-compose 或与 Dockerfiles 一起使用的其他系统一起使用。例如，docker-compose.yml 可能类似于：
 
 ```yaml
 service-a:
@@ -190,20 +169,20 @@ service-b:
   - service-a
 ```
 
-Now, `docker-compose up` and `docker-compose build` will work as
-expected.
+现在 `docker-compose up` 和 `docker-compose build` 将按预期工作。
 
-## Usage
 
-See [usage docs](https://github.com/spotify/dockerfile-maven/blob/master/docs/usage.md).
+## 用法
 
-## Authentication
+见 [usage docs](https://github.com/spotify/dockerfile-maven/blob/master/docs/usage.md).
 
-See [authentication docs](https://github.com/spotify/dockerfile-maven/blob/master/docs/authentication.md).
+## 认证方式
 
-## Releasing
+见 [authentication docs](https://github.com/spotify/dockerfile-maven/blob/master/docs/authentication.md).
 
-To cut the Maven release:
+## 发布
+
+剪贴 Maven release:
 
 ```
 mvn clean [-B -Dinvoker.skip -DskipTests -Darguments='-Dinvoker.skip -DskipTests'] \
@@ -211,7 +190,7 @@ mvn clean [-B -Dinvoker.skip -DskipTests -Darguments='-Dinvoker.skip -DskipTests
   release:clean release:prepare release:perform
 ```
 
-We use [`gren`](https://github.com/github-tools/github-release-notes#installation) to create Releases in Github:
+我们使用 [`gren`](https://github.com/github-tools/github-release-notes#installation) 发版
 
 ```
 gren release
