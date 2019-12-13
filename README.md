@@ -7,27 +7,19 @@
 ## 状态: 成熟
 **目前插件比较成熟，基于这一点，我们不再开发，添加新功能，修复非关键性错误。**
 
-这个Maven插件将Maven与Docker集成在一起。
+本Maven插件将 Maven 与 Docker 集成在一起。
 
 插件设计目标是：
 
   - 本插件需通过 `Dockerfile` 构建 docker 项目。
   - 使 Docker 构建过程 集成在 Maven 构建过程集成。默认当输入 `mvn
     package` 你就会得到 docker 镜像。 当输入 `mvn deploy`，发布 docker 镜像。
-  - Make the goals remember what you are doing.  You can type `mvn
-    dockerfile:build` and later `mvn dockerfile:tag` and later `mvn
-    dockerfile:push` without problems.  This also eliminates the need
-    for something like `mvn dockerfile:build -DalsoPush`; instead you
-    can just say `mvn dockerfile:build dockerfile:push`.
-  - Integrate with the Maven build reactor.  You can depend on the
-    Docker image of one project in another project, and Maven will
-    build the projects in the correct order.  This is useful when you
-    want to run integration tests involving multiple services.
+  - 清晰的构建目标，你可以输入 `mvn dockerfile:build` 然后 `mvn dockerfile:tag` 然后 `mvn dockerfile:push` 。这样消除了一些不明确对类似 `mvn dockerfile:build -DalsoPush` 命令; 作为替换可以用 `mvn dockerfile:build dockerfile:push`。
+  - 集成 Maven build reactor（Maven 多模块构建）。你可以在另一个项目中依赖一个项目的 Docker 映像，Maven 将以正确的顺序构建项目。这对于多服务测试相当有用。
 
-This project adheres to the [Open Code of Conduct][code-of-conduct].
-By participating, you are expected to honor this code.
+参与项目的维护，希望可以遵守以下协议 [Open Code of Conduct][code-of-conduct]
 
-See the [changelog for a list of releases][changelog]
+更新日志 [changelog for a list of releases][changelog]
 
 [code-of-conduct]: https://github.com/spotify/code-of-conduct/blob/master/code-of-conduct.md
 [changelog]: CHANGELOG.md
